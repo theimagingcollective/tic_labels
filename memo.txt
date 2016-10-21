@@ -1,4 +1,0 @@
-ImportError: No module named pandas.
-- need to pip install pandas
-
-ImportError: No module named iw_labels
