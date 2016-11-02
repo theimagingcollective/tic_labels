@@ -1,52 +1,6 @@
 #!/usr/bin/env python
 
 """
-stats.py
-
-Purpose of this function is to measure attributes of a label and/or statistics of an image constrained by the label
-
-Requirements
-
-1) Required Inputs
-    3D or 4D Label NIFTI Image
-
-   Optional Inputs
-       List of 3D or 4D Images.  If 4D Label Image is given then each 3D Volume will be treated separately
-       CSV output file containing measured metrics.  Pandas python library will be used to read and write CSV files.
-       Display only option.  This option is helpful if you just want to obtain some quick information about the labels.
-
-    The label image and optional input image shall have the same dimensions along the first three dimensions.  The
-    fourth dimension may be different.  A 4D label image will be treated as if a list of 3D label images were given.
-    The labels in each of the 3D label volumes may contain the same label but shall be treated separately.  If a 4D image
-    file is given then statistics will be reported from each of the individual 3D volumes.
-
-
-2) Output image shall always contain the following information
-
-    Label Number (Integer or Floating Point Number)
-    Label Center of Mass
-    Volume number of Label  (3D Volume always equals 0, 4D Volume)
-
-3) The attributes of the label that shall be measured
-
-    1) Volume
-    2) Center of Mass in index units - This helps with locating the lesion
-    3) Dimensions of minimum bounding box
-    4) Minimum dimension of bounding box
-    5) Volume of bounding box
-    6) Fill Factor of bounding box (Volume of label/Volume of lesion)
-
-4) The user shall be able to limit the labels reported.   This would be similar to the ability of the sort function.
-
-    1) Limiting the output to a continuous range of values (minimum and maximum)
-
-5) The user shall be able to sort output of data by a single column.
-
-
-Limitations
-
-    1D label and image files shall not be supported.
-    2D label and image files may be supported but they shall be treated as a 3D image with a single slice.
 
 """
 from __future__ import division
@@ -104,7 +58,7 @@ if __name__ == "__main__":
                          default=('volume', 'com_x', 'com_y', 'com_z', 'com_in', 'bb_dx', 'bb_dy', 'bb_dz', 'bb_dmin', 'bb_volume', 'fill_factor'  ))
 
      parser.add_argument("--labels",          help="Label indices to analyze", type=int, nargs="*", default = None )
-     parser.add_argument("--sort",            help="Label indices to analyze", type=str, default = 'label' )
+     parser.add_argument("--sort",          help="Label indices to analyze", type=str, default = 'label' )
 
      parser.add_argument("--limits_volume",       help="Report labels within these limits", type=int, nargs=2, default = [0, np.inf] )
      parser.add_argument("--limits_fill_factor",  help="Report labels within these limits", type=int, nargs=2, default = [0, 1.0] )

@@ -2,7 +2,6 @@
 """
 Label connected components on an image with scipy.ndimage
 """
-
 import sys
 import nibabel
 import scipy.ndimage
