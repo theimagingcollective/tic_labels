@@ -8,11 +8,14 @@ sys.path.insert(0,'.')
 sys.path.insert(0,relativeHome)
 sys.path.insert(0,srcDir)
 from labelSrc import *
-from genPoints import *
+from genROI import *
 import stats
 class TestClass:
     def test_stats(capsys):
-        expectedV,expectedCOM = genROI()
+        centers=np.random.randint(20,size=(2,3))+90
+        radius=np.random.randint(20,size=(2))+10
+        shape=np.random.choice(['cube','sphere'],2,replace=False)
+        expectedV,expectedCOM = genROI(centers[0],radius[0],shape[0],centers[1],radius[1],shape[1])
         proc=subprocess.run(['../labelSrc/stats.py', 'test3Dcubes.nii.gz', '-v','--stats','volume','com'],stdout=subprocess.PIPE)
         outputBuff=proc.stdout.decode("utf-8")
         lines=outputBuff.split('\n')[1:]

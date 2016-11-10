@@ -16,7 +16,7 @@ def genROI():
     pts=np.zeros([boxEdge,boxEdge,boxEdge])
     com=np.array([0,0,0])
     #generate coordinates of points
-    for c, m, center,edgeLen in [('r', 'o', [50,100,100], 15+np.random.randint(0,15)), ('b', '^',[60,110,110],15)]:
+    for c, m, center,edgeLen in [('r', 'o', [50,100,100], 15+np.random.randint(0,15)), ('b', '^',[60,110,110],15+np.random.randint(0,15))]:
 
         nPts.append(edgeLen**3)
         xr = range(center[0]-int(edgeLen/2),center[0]+int(edgeLen/2+0.5))
@@ -36,8 +36,8 @@ def genROI():
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
-    #plt.title('%d and %d points in each regions. But they overlaps.'%(nPts[0],nPts[1]))
-    #plt.show()
+    plt.title('%d and %d points in each regions. But they overlaps.'%(nPts[0],nPts[1]))
+    plt.show()
 
     totalPts=int(np.sum(pts[pts>0]))
     com=np.round(com/totalPts)
