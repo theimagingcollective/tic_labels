@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -54,4 +55,4 @@ if __name__=="__main__":
     centers=np.random.randint(20,size=(2,3))+90
     radius=np.random.randint(10,size=(2))+10
     shape=np.random.choice(['cube','sphere'],2,replace=False)
-    genROI(centers[0],radius[0],shape[0],centers[1],radius[1],shape[1])
+    genROI(centers[0],radius[0],shape[0],centers[1],radius[1],shape[1],1)
