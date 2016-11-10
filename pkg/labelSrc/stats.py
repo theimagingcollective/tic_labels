@@ -20,6 +20,7 @@ from scipy.ndimage.morphology import binary_erosion, binary_dilation, binary_ope
 
 import iw_labels as labels
 import scipy.stats as stats
+from functools import *
 
 def check_limits( parameter, limits ):
     return parameter >= limits[0] and parameter <= limits[1]
@@ -42,19 +43,27 @@ def calculate_bounding_box( mask ):
 # Main Function
 #
 
-if __name__ == "__main__":
+def main():
 
      ## Parsing Arguments
      #
      #
-     availableStats=('label', 'volume', 'com_x', 'com_y', 'com_z', 'com_in', 'bb_dx', 'bb_dy', 'bb_dz', 'bb_dmin', 'bb_volume', 'fill_factor' )
-     usage = "usage: %prog [options] arg1 arg2"
      
+     com=['com_x','com_y','com_z','com_in']
+     bb=['bb_dx','bb_dy','bb_dz','bb_dmin','bb_volume','fill_factor']
+     allStats=['label', 'volume']+com+bb
+     entries=['volume', 'com', 'bb','all']
+     dict={'com':com,'bb':bb,'all':allStats}
+     for k in allStats:
+        dict[k]=[k]
+     
+     usage = "usage: %prog [options] arg1 arg2"
+    
      parser = argparse.ArgumentParser(prog='iw_compare_images')
 
      parser.add_argument("in_label_nii_filename",  help="Label NIFTI filename ")
      parser.add_argument("--out",                  help="Filename of CSV output file containing label stats", default=None)
-     parser.add_argument("--stats",                help="Stats to report", type=str, nargs="*", default=availableStats)
+     parser.add_argument("--stats",                help="Stats to report", type=str, nargs="*", default=entries)
 
      parser.add_argument("--labels",          help="Label indices to analyze", type=int, nargs="*", default = None )
      parser.add_argument("--sort",          help="Label indices to analyze", type=str, default = 'label' )
@@ -76,18 +85,20 @@ if __name__ == "__main__":
 
      label_list = labels.get_labels( inArgs.labels, label_array, inArgs.limits_background)
      
-     df_stats  = pd.DataFrame(columns= availableStats )
+     df_stats  = pd.DataFrame(columns= allStats )
      
      # input column name check
-     
-     keyError=([k for k in inArgs.stats if not k in availableStats]) #item is in input stats but not in available stats
+     keyError=([k for k in inArgs.stats if not k in entries+allStats])#union(entries,allStats) ]) #item is in input stats but not in available stats
      if keyError: #if the list is not empty
         print ('Key error for ',keyError)
-        print ('Available stats column names are:\n',availableStats)
+        print ('Available stats column names are:\n',entries)
         exit(0)
-    
-     stats_list = ['label',] + list(inArgs.stats)
-
+     
+     if inArgs.stats:
+        stats_list = reduce(lambda l1,l2:l1+l2,list(map(lambda x:dict[x],inArgs.stats)))
+     #print (stats_list)
+     else:
+        stats_list = ['label',]
      if inArgs.verbose:
          jj=0
          pd.set_option('expand_frame_repr', False)
@@ -140,4 +151,8 @@ if __name__ == "__main__":
          print
 
      if not inArgs.out == None:
-         df_sorted[ stats_list ].to_csv(inArgs.out, index=False ) 
+         df_sorted[ stats_list ].to_csv(inArgs.out, index=False )
+#    return df_sorted[ stats_list  ]
+
+if __name__ == "__main__":
+    main()
