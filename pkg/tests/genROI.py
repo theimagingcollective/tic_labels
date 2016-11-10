@@ -7,7 +7,7 @@ import nibabel as nib
 def randrange(n, vmin, vmax):
     return (vmax - vmin)*np.random.rand(n) + vmin
 
-def genROI(center1,radius1,shape1,center2,radius2,shape2):
+def genROI(center1,radius1,shape1,center2,radius2,shape2,showImg):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     data=[]
@@ -18,7 +18,7 @@ def genROI(center1,radius1,shape1,center2,radius2,shape2):
     com=np.array([0,0,0])
     #generate coordinates of points
     for c, m, center,radius,shape in [('r', 'o',center1, radius1,shape1), ('b', '^',center2,radius2,shape2)]:
-        nPts.append(radius**3)
+        
         xr = range(center[0]-int(radius/2),center[0]+int(radius/2+0.5))
         yr = range(center[1]-int(radius/2),center[1]+int(radius/2+0.5))
         zr = range(center[2]-int(radius/2),center[2]+int(radius/2+0.5))
@@ -32,13 +32,15 @@ def genROI(center1,radius1,shape1,center2,radius2,shape2):
                             com+=[i,j,k]
                             pts[i,j,k]=1
                             region[i,j,k]=1
+        nPts.append(np.sum(region))
         coords=np.nonzero(region)
         ax.scatter(coords[0],coords[1],coords[2], c=c, marker=m)
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     plt.title('%d and %d points in each regions. But they may overlap.'%(nPts[0],nPts[1]))
-    plt.show()
+    if showImg:
+        plt.show()
 
     totalPts=int(np.sum(pts[pts>0]))
     com=np.round(com/totalPts)
