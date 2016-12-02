@@ -76,11 +76,11 @@ def main():
 
     usage = "usage: %prog [options] arg1 arg2"
 
-    parser = argparse.ArgumentParser(prog='iw_compare_images')
+    parser = argparse.ArgumentParser(prog='stats')
 
     parser.add_argument("in_label_nii_filename", help="Label NIFTI filename ")
     parser.add_argument("--out", help="Filename of CSV output file containing label stats", default=None)
-    parser.add_argument("--stats", help="Stats to report", type=str, nargs="*", default=entries)
+    parser.add_argument("--stats", help="Stats to report (volume, com, bb, all)", type=str, nargs="*", default=entries)
 
     parser.add_argument("--labels", help="Label indices to analyze", type=int, nargs="*", default=None)
     parser.add_argument("--sort", help="Label indices to analyze", type=str, default='label')
