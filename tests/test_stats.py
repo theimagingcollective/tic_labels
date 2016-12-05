@@ -3,7 +3,7 @@ import subprocess
 import numpy as np
 
 relativeHome='../'
-srcDir=relativeHome+'labelSrc/'
+srcDir=relativeHome+'labels/'
 
 #outDir=relativeHome+'output/'
 
@@ -11,7 +11,7 @@ sys.path.insert(0,'.')
 sys.path.insert(0,relativeHome)
 sys.path.insert(0,srcDir)
 
-from labelSrc import *
+from labels import *
 from genROI import *
 import stats
 
@@ -21,7 +21,7 @@ class TestLabelClass:
         radius=np.random.randint(20,size=(2))+10
         shape=np.random.choice(['cube','sphere'],2,replace=False)
         expectedV,expectedCOM = genROI(centers[0],radius[0],shape[0],centers[1],radius[1],shape[1],1)
-        proc=subprocess.run(['../labelSrc/stats.py', 'test3Dcubes.nii.gz', '-v','--stats','volume','com'],stdout=subprocess.PIPE)
+        proc=subprocess.run(['../labels/stats.py', 'test3Dcubes.nii.gz', '-v','--stats','volume','com'],stdout=subprocess.PIPE)
         outputBuff=proc.stdout.decode("utf-8")
         lines=outputBuff.split('\n')[1:]
 
@@ -29,8 +29,8 @@ class TestLabelClass:
             if line!='':
                 results=line.split(' ')
                 results=list(filter(None, results))
-                runV=results[1]
-                runCOM=results[2:5]
+                runV=results[2]
+                runCOM=results[3:6]
                 runV=float(runV)
 
                 assert expectedV==float(runV)
