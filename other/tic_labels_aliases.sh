@@ -1,12 +1,9 @@
-
-export TIC_LABELS_PATH='/Users/bkraft/PycharmProjects/tic_labels'  # Add path information here
-export TIC_LABELS_PYTHONPATH=${TIC_LABELS_PATH}/labels
-
-export PYTHONPATH=${TIC_LABELS_PYTHONPATH}:$PYTHONPATH
+#!/usr/bin/env bash
 
 alias  tic_labels_cc='python2 ${TIC_LABELS_PYTHONPATH}/connected_components.py'
 alias  tic_labels_create_sphere='python2 ${TIC_LABELS_PYTHONPATH}/create_sphere.py'
 alias  tic_labels_extract='python2 ${TIC_LABELS_PYTHONPATH}/extract.py'
+alias  tic_labels_keep='python2 ${TIC_LABELS_PYTHONPATH}/keep.py'
 alias  tic_labels_label='python2 ${TIC_LABELS_PYTHONPATH}/label.py'
 alias  tic_labels_list='python2 ${TIC_LABELS_PYTHONPATH}/list.py'
 alias  tic_labels_remove='python2 ${TIC_LABELS_PYTHONPATH}/remove.py'
