@@ -89,17 +89,17 @@ def calculate_center_of_mass(mask):
 # Main Function
 #
 
-def measure(in_label_nii_filename, labels, background, stats, out_filename, limits_volume_voxels=[0, numpy.inf], 
+def measure(in_label_nii_filename, label_list, background, stats, out_filename, limits_volume_voxels=[0, numpy.inf],
             limits_bb_volume_voxels=[0, numpy.inf], limits_fill_factor=[0,1], sort='volume', 
             verbose=False, verbose_nlines=20):
 
-    label_nii = labels.read_nifti_file( in_label_nii_filename, 'iw_label_stats.py: Label file does not exist. ')
+    label_nii = labels.read_nifti_file( in_label_nii_filename, 'labels.properties.py: Label file does not exist. ')
 
     single_voxel_volume_mm3 = query_voxel_volume_mm3( label_nii )
 
     label_array = label_nii.get_data()
 
-    label_list = labels.get_labels(labels, label_array, background)
+    label_list = labels.get_labels(label_list, label_array, background)
 
     df_stats = pd.DataFrame(columns=(
     'label', 'volume_voxels', 'volume_mm3', 'com_x', 'com_y', 'com_z', 'com_t', 'com_in', 'bb_dx', 'bb_dy', 'bb_dz', 'bb_dt', 'bb_dmin', 'bb_volume_voxels',
