@@ -1,13 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 Label connected components on an image with scipy.ndimage
 """
-import sys
-import nibabel
-import scipy.ndimage
+import sys      
+import nibabel 
+import scipy.ndimage as ndimage
 import argparse
 
-import labels
+import iw_labels as labels
+
+def create( input_file, output_file ):
+
+     in_nii    = labels.read_nifti_file( input_file, 'Label file does not exist' )
+     in_array  = in_nii.get_data()
+
+     out_array, n_out_array = ndimage.label( in_array )
+
+     nibabel.save( nibabel.Nifti1Image( out_array, in_nii.get_affine()), output_file )
 
 
 def main():
@@ -26,12 +35,7 @@ def main():
      else:
           out_filename = inArgs.out_nii
 
-     in_nii    = labels.read_nifti_file( inArgs.in_nii, 'Label file does not exist' )
-     in_array  = in_nii.get_data()
-
-     out_array, n_out_array = scipy.ndimage.label( in_array )
-
-     nibabel.save( nibabel.Nifti1Image( out_array, in_nii.get_affine()), out_filename )
+     create( inArgs.in_nii, out_filename)
 
      return 0 
 

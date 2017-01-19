@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 
@@ -11,6 +11,7 @@ import pandas as pd
 import scipy.ndimage as ndimage
 import argparse
 
+import iwUtilities as util
 
 class label(object):
     """An excess blob is represented by a position, radius and peak value."""  
@@ -45,9 +46,9 @@ def read_nifti_file( nii_filename, error_message ):
         try:
             nii = nb.load( nii_filename )
         except IOError:
-            sys.exit("Unable to read NIFTI file")
+            sys.exit("Unable to read NIFTI file. " + nii_filename)
     else:
-        sys.exit(error_message)
+        sys.exit(error_message + ' ' + nii_filename)
 
     return nii
 
@@ -82,17 +83,17 @@ def read_from_csv( filename ):
 
 def get_labels( requested_labels, label_array, include_background=False ):
 
-    all_labels = np.unique(label_array[ label_array > 0 ])
+    
+
+    all_labels = np.unique(label_array[ label_array > 0 - include_background ])
 
     if requested_labels == None:  # In this case None means All labels present
         labels = all_labels
     else:
         labels = list( set(requested_labels) & set(all_labels))
-
+    
     if include_background:
-        print ("hello")
-        labels = [ 0 ]  + labels
-
+       labels = [ 0 ]  + labels
 
     if not len(labels) :
         sys.exit('Labels requested do not exist in the label array')
@@ -127,12 +128,12 @@ def permute_image_array( image_array ):
     return image_array, nVolumes
 
 
-def measure_image_stats( label_nii_filename, image_nii_filename, requested_labels, verbose_flag=False, verbose_nlines=10, verbose_all_flag=False ):
+def measure_image_stats( label_nii_filename, image_nii_filename, requested_labels=None, image_limits=[None,None], verbose_flag=False, verbose_nlines=10, verbose_all_flag=False ):
 
     # Load arrays
 
-    label_nii = read_nifti_file( label_nii_filename, 'Label file does not exist' )
-    image_nii = read_nifti_file( image_nii_filename, 'Image file does not exist' )
+    label_nii = read_nifti_file( label_nii_filename, 'measure-image_stats.py: Label file does not exist.' )
+    image_nii = read_nifti_file( image_nii_filename, 'measure-image_stats.py: Image file does not exist' )
 
     # System Checks to verify that the Array Size and Dimensions are compatible
 
@@ -149,7 +150,6 @@ def measure_image_stats( label_nii_filename, image_nii_filename, requested_label
         sys.exit('Image array and label array do not have the same voxel dimensions')
 
     # Find a set of acceptable labels
-
 
     labels = get_labels( requested_labels, label_array)
 
@@ -174,33 +174,63 @@ def measure_image_stats( label_nii_filename, image_nii_filename, requested_label
         ii_verbose=0
         pd.set_option('expand_frame_repr', False)
 
-    df_stats              = pd.DataFrame(columns=('label', 'x_com', 'y_com', 'z_com', 'time', 'mean', 'std', 'min','max' ))
+    df_stats              = pd.DataFrame(columns=('label', 'label_volume', 'x_com', 'y_com', 'z_com', 'time', 'image_volume', 'mean', 'std', 'min','max' ))
 
+
+    # This should be done with a label comprehension.  I just haven't had a chance to refactor the code.
 
     for ii, ii_label in enumerate(labels):
 
         for jj in range(0,nVolumes):
-        
-            mask = label_array[0,:,:,:] == ii_label
 
-            label_mean   = np.mean( image_array[jj][ mask ] )
-            label_std    = np.std( image_array[jj][ mask ] )
-            label_min    = np.min( image_array[jj][ mask ] )
-            label_max    = np.max( image_array[jj][ mask ] )
+            if not image_limits[0] == None:
+                image_mask_min = (image_array[jj] >= image_limits[0])
+            else:
+                image_mask_min = np.ones( image_array[jj].shape ) == 1
 
-            x_com, y_com, z_com =  ndimage.measurements.center_of_mass(mask)
 
-            stats  = [ii_label, x_com, y_com, z_com, jj, label_mean, label_std, label_min, label_max ]
+            if not image_limits[1] == None:
+                image_mask_max = (image_array[jj] <= image_limits[1])
+            else:
+                image_mask_max = np.ones( image_array[jj].shape ) == 1
 
+            image_mask = image_mask_min & image_mask_max
+
+            label_mask = label_array[0,:,:,:] == ii_label
+            x_com, y_com, z_com =  ndimage.measurements.center_of_mass(label_mask)
+            label_volume = int(np.sum(label_mask))
+
+            stats = [ii_label, label_volume, x_com, y_com, z_com, jj ]
+
+            # Calculate Image stats
+            image_for_stats = image_array[jj][ label_mask * image_mask ]
+
+            if image_for_stats.size:
+             
+                image_volume = int(np.sum(label_mask * image_mask))
+                image_mean   = np.mean( image_for_stats ) 
+                image_std    = np.std(  image_for_stats ) 
+                image_min    = np.min(  image_for_stats ) 
+                image_max    = np.max(  image_for_stats ) 
+                
+                stats += [ image_volume, image_mean, image_std, image_min, image_max ]
+
+            else:
+                stats += [ np.NAN ]*5
+
+                
             if verbose_flag:
                 if ii_verbose==(verbose_nlines-1):
                     print
                     df_verbose =  df_stats.tail(verbose_nlines) 
-                    print (df_verbose.to_string(formatters={'label':'{:,.0f}'.format, 'volume':'{:,.0f}'.format, 'time_index':'{:,.0f}'.format}))
+                    print df_verbose.to_string(formatters={'label':'{:,.0f}'.format, 'label_volume':'{:,.0f}'.format, 'image_volume':'{:,.0f}'.format,
+                                                           'time_index':'{:,.0f}'.format, 
+                                                           'x_com':'{:,.1f}'.format,'y_com':'{:,.1f}'.format,'z_com':'{:,.1f}'.format})
                     ii_verbose = 0
                 else:
                     ii_verbose += 1
-                    
+
+
             df_stats.loc[len(df_stats)] = stats
 
 
@@ -210,9 +240,19 @@ def measure_image_stats( label_nii_filename, image_nii_filename, requested_label
             pd.set_option('display.max_rows',len(df_stats))
             
         print
-        print (df_stats)
+        print df_stats
         print
             
 
     return df_stats
         
+
+def extract(extract_labels, in_array):
+
+     out_array = np.zeros( in_array.shape )
+
+     for ii in extract_labels:
+          mask = in_array == ii
+          out_array[ mask ] = in_array[ mask ]
+
+     return out_array

@@ -11,7 +11,7 @@ import pandas as pd
 import scipy.ndimage as ndimage
 import argparse
 
-import iw_labels as labels
+import labels
 
 
 def check_limits(parameter, limits):

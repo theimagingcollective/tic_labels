@@ -11,7 +11,7 @@ import pandas as pd
 import scipy.ndimage as ndimage
 import argparse
 
-import iwUtilities as util
+import _utilities as util
 
 class label(object):
     """An excess blob is represented by a position, radius and peak value."""  

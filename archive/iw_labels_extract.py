@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 
@@ -13,23 +13,17 @@ import argparse
 
 from scipy.ndimage.morphology import binary_erosion, binary_dilation, binary_opening
 
-import labels
-import _utilities as util
+import iw_labels as labels
+import iwUtilities as util
 import scipy.stats as stats
 
-#
-# Main Function
-#
-
-if __name__ == "__main__":
+def main():
 
      ## Parsing Arguments
-     #
-     #
 
      usage = "usage: %prog [options] arg1 arg2"
 
-     parser = argparse.ArgumentParser(prog='labels_extract')
+     parser = argparse.ArgumentParser(prog='iw_labels_extract')
 
      parser.add_argument("in_nii",    help="Filename of NIFTI input label ")
      parser.add_argument("--out_nii",    help="Filename of NIFTI output label. (default = --in ) ")
@@ -56,22 +50,30 @@ if __name__ == "__main__":
      else:
           csv_extract_labels = []
 
-#     print ( inArgs.extract.shape)
-#     print ( csv_extract_labels.shape)
+#     print  inArgs.extract.shape
+#     print  csv_extract_labels.shape
 
      requested_labels = inArgs.extract + csv_extract_labels
 
      extract_labels  = labels.get_labels( requested_labels, in_array )
 
      if inArgs.verbose:
-          print ('Requested labels for extraction not found', list(set(requested_labels) - set(extract_labels)))
+          print requested_labels
+          print extract_labels
 
-     out_array = np.zeros( in_array.shape )
+     if inArgs.verbose:
+          print 'Requested labels for extraction not found', list(set(requested_labels) - set(extract_labels))
+
+     out_array = labels.extract( extract_labels, in_array)
+
+     nb.save( nb.Nifti1Image( out_array, None, in_nii.get_header() ), out_filename )
 
 
-     for ii in extract_labels:
-          mask = in_array == ii
-          out_array[ mask ] = in_array[ mask ]
+#
+# Main Function
+#
 
+if __name__ == "__main__":
 
-     nb.save( nb.Nifti1Image( out_array, in_nii.get_affine()), out_filename )
+    sys.exit(main())
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 
@@ -18,8 +18,8 @@ import argparse
 
 from scipy.ndimage.morphology import binary_erosion, binary_dilation, binary_opening
 
-import labels
-import _utilities as util
+import iw_labels   as labels
+import iwUtilities as util
 import scipy.stats as stats
 
 
@@ -35,7 +35,7 @@ class EllipsoidTool:
         Based on work by Nima Moshtagh
         http://www.mathworks.com/matlabcentral/fileexchange/9542
         and also by looking at:
-        http://cctbx.sourceforge.net/current/python/scitbx.math.minimum_covering_ellipsoid.html
+        http://cctbx.sourceforge.net/current/python2/scitbx.math.minimum_covering_ellipsoid.html
         Which is based on the first reference anyway!
         
         Here, P is a numpy array of N dimensional points like this:
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
      usage = "usage: %prog [options] arg1 arg2"
 
-     parser = argparse.ArgumentParser(prog='ellipsoid')
+     parser = argparse.ArgumentParser(prog='iw_labels_ellipsoid')
 
      parser.add_argument("in_nii",    help="Label NIFTI filename ")
      parser.add_argument("--out",    help="Label NIFTI filename ", default=None)
@@ -174,9 +174,10 @@ if __name__ == "__main__":
 
      if inArgs.debug:
 
-         print("inArgs.in_nii   = " +  inArgs.in_nii + '\n')
-         print("inArgs.debug     = " +  str(inArgs.debug))
-         print("inArgs.verbose   = " +  str(inArgs.verbose))
+         print "inArgs.in_nii   = " +  inArgs.in_nii
+         print
+         print "inArgs.debug     = " +  str(inArgs.debug)
+         print "inArgs.verbose   = " +  str(inArgs.verbose)
 
 
      label_nii    = labels.read_nifti_file( inArgs.in_nii, 'Label file does not exist' )
@@ -226,12 +227,12 @@ if __name__ == "__main__":
 
          if inArgs.verbose:
              if jj==(inArgs.verbose_nlines-1):
-                 print(' ')
+                 print
                  df_verbose =  df_stats.tail(inArgs.verbose_nlines) 
-                 print (df_verbose[ stats_list].to_string(formatters={'label_volume':'{:,.0f}'.format,'ellipsoid_volume':'{:,.3f}'.format,
+                 print df_verbose[ stats_list].to_string(formatters={'label_volume':'{:,.0f}'.format,'ellipsoid_volume':'{:,.3f}'.format,
                                                         'com_x':'{:,.2f}'.format,'com_y':'{:,.2f}'.format, 'com_z':'{:,.2f}'.format,
                                                         'center_x':'{:,.2f}'.format,'center_y':'{:,.2f}'.format, 'center_z':'{:,.2f}'.format,
-                                                        'r1':'{:,.2f}'.format,'r2':'{:,.2f}'.format, 'r3':'{:,.2f}'.format, 'fa':'{:,.3f}'.format }) )
+                                                        'r1':'{:,.2f}'.format,'r2':'{:,.2f}'.format, 'r3':'{:,.2f}'.format, 'fa':'{:,.3f}'.format }) 
 
                  jj = 0
              else:
@@ -239,9 +240,10 @@ if __name__ == "__main__":
 
          
      if inArgs.verbose:
-         print('\n\n')
-         print (df_stats[stats_list])
-         print('\n')
+         print
+         print
+         print df_stats[stats_list]
+         print
 
      if not inArgs.out == None:
          df_stats[ stats_list ].to_csv(inArgs.out, index=False ) 

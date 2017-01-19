@@ -20,7 +20,7 @@ import argparse
 
 from scipy.ndimage.morphology import binary_erosion, binary_dilation, binary_opening
 
-import iw_labels as labels
+import labels
 import scipy.stats as stats
 from functools import *
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 A function ot 
@@ -11,7 +11,7 @@ import pandas as pd
 import scipy.ndimage as ndimage
 import argparse
 
-import labels
+import iw_labels as labels
 
 def check_limits( parameter, limits ):
     return parameter >= limits[0] and parameter <= limits[1]
@@ -74,7 +74,7 @@ if __name__ == "__main__":
              pd.set_option('display.max_rows',len(df_stats))
 
          print
-         print (df_sorted[ stats_list  ])
+         print df_sorted[ stats_list  ]
          print
 
 

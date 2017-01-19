@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 alias  tic_labels_cc='python2 ${TIC_LABELS_PYTHONPATH}/connected_components.py'
+alias  tic_labels_create_qa_labels='python3 ${TIC_LABELS_PYTHONPATH}/create_qa_labels.py'
+alias  tic_labels_create_mask='python3 ${TIC_LABELS_PYTHONPATH}/create_mask.py'
 alias  tic_labels_create_sphere='python2 ${TIC_LABELS_PYTHONPATH}/create_sphere.py'
 alias  tic_labels_extract='python2 ${TIC_LABELS_PYTHONPATH}/extract.py'
 alias  tic_labels_keep='python2 ${TIC_LABELS_PYTHONPATH}/keep.py'
