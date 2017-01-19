@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
      usage = "usage: %prog [options] arg1 arg2"
 
-     parser = argparse.ArgumentParser(prog='iw_compare_images')
+     parser = argparse.ArgumentParser(prog='measure_images')
 
      parser.add_argument("label_filename",    help="Label NIFTI filename ")
      parser.add_argument("image1_filename",   help="Image NIFTI filename 1" )
