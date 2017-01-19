@@ -13,7 +13,7 @@ import argparse
 
 from scipy.ndimage.morphology import binary_erosion, binary_dilation, binary_opening
 
-import .stats as label_stats
+import stats as label_stats
 import _utilities as util
 import scipy.stats as stats
 
