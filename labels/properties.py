@@ -4,23 +4,14 @@
 
 """
 from __future__ import division
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 import sys
 import numpy
-from numpy import linalg
-from random import random
 
-import nibabel as nb
 import pandas as pd
 import scipy.ndimage as ndimage
 import argparse
 
-from scipy.ndimage.morphology import binary_erosion, binary_dilation, binary_opening
-
-import labels 
-import _utilities as util
-import scipy.stats as stats
+import labels
 
 
 def check_limits(parameter, limits):
@@ -146,10 +137,10 @@ def measure(in_label_nii_filename, label_list, background, stats, out_filename, 
 
                     if verbose:
                         if jj == (verbose_nlines - 1):
-                            print
+                            print('\n')
                             df_verbose = df_stats.tail(verbose_nlines)
                             df_verbose = df_verbose[stats_list]
-                            print df_verbose.to_string(
+                            print(df_verbose.to_string(
                                 formatters={'volume_voxels': '{:,.0f}'.format, 'volume_mm3': '{:,.3f}'.format,
                                             'com_x': '{:,.0f}'.format,
                                             'com_y': '{:,.0f}'.format, 'com_z': '{:,.0f}'.format,
@@ -159,7 +150,7 @@ def measure(in_label_nii_filename, label_list, background, stats, out_filename, 
                                             'bb_volume_voxels': '{:,.0f}'.format,
                                             'fill_factor': '{:,.3f}'.format 
                                             }
-                                )
+                                ))
 
                             jj = 0
                         else:
@@ -168,9 +159,9 @@ def measure(in_label_nii_filename, label_list, background, stats, out_filename, 
     df_sorted = df_stats.sort_values([sort], ascending=[1]).reset_index(drop=True)
 
     if verbose:
-        print
-        print df_sorted[stats_list]
-        print
+        print('\n')
+        print(df_sorted[stats_list])
+        print('\n')
 
     if not out_filename == None:
         df_sorted[stats_list].to_csv(out_filename, index=False)
