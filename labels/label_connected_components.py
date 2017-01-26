@@ -12,7 +12,7 @@ import numpy
 
 def label_connected_components( input_file, output_file, lower_threshold=-numpy.inf, upper_threshold=numpy.inf ):
 
-     in_nii    = labels.read_nifti_file( input_file, 'Label file does not exist' )
+     in_nii    = labels.common.read_nifti_file( input_file, 'Label file does not exist' )
      in_array  = in_nii.get_data()
 
      in_array[in_array<lower_threshold] = 0

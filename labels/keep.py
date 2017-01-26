@@ -47,10 +47,10 @@ def main():
 
      usage = "usage: %prog [options] arg1 arg2"
 
-     parser = argparse.ArgumentParser(prog='iw_labels_remove')
+     parser = argparse.ArgumentParser(prog='keep')
 
      parser.add_argument("in_nii",    help="Filename of NIFTI input label ")
-     parser.add_argument("--out_nii",    help="Filename of NIFTI output label. (default = --in_nii ) ")
+     parser.add_argument("--out_nii",    help="Filename of NIFTI output label. (default = keep.<in_nii> )")
 
      parser.add_argument('-k', "--keep",  help="Labels to remove", type=float, nargs="*", default = [] )
      parser.add_argument("--csv",           help="CSV filename containing labels to remove", default = [] )
@@ -60,6 +60,8 @@ def main():
      inArgs = parser.parse_args()
 
      if inArgs.out_nii == None:
+          out_filename = util.add_prefix_to_filename(inArgs.in_nii, 'keep.')
+     elif inArgs.out_nii == 'same':
           out_filename = inArgs.in_nii
      else:
           out_filename = inArgs.out_nii

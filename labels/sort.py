@@ -1,20 +1,12 @@
 #!/usr/bin/env python
-
 """
-A function ot 
+Sorts a Label CSV file. This function is primarily used for viewing contents of CSV file.
 """
 import sys
-import numpy as np
-
-import nibabel as nb
 import pandas as pd
-import scipy.ndimage as ndimage
 import argparse
-
 import labels
 
-def check_limits( parameter, limits ):
-    return parameter >= limits[0] and parameter <= limits[1]
 
 #
 # Main Function
@@ -26,7 +18,7 @@ if __name__ == "__main__":
      
      usage = "usage: %prog [options] arg1 arg2"
 
-     parser = argparse.ArgumentParser(prog='iw_labels_sort')
+     parser = argparse.ArgumentParser(prog='sort')
 
      parser.add_argument("in_csv",    help="Label NIFTI filename ")
      parser.add_argument("--out",     help="Filename of CSV output file containing label stats", default=None)
@@ -76,7 +68,6 @@ if __name__ == "__main__":
          print
          print (df_sorted[ stats_list  ])
          print
-
 
 
      if not inArgs.out == None:

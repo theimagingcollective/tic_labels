@@ -17,6 +17,39 @@ import labels
 import _utilities as util
 import scipy.stats as stats
 
+def extract(in_filename, in_csv, in_extract_labels, out_filename, verbose=False):
+
+     # Read in label array
+
+     in_nii    = labels.read_nifti_file( in_filename, 'Label file does not exist' )
+     in_array  = in_nii.get_data()
+     
+     if len(in_csv):
+          csv_extract_labels = labels.read_labels_from_csv( in_csv)
+     else:
+          csv_extract_labels = []
+
+#     print ( inArgs.extract.shape)
+#     print ( csv_extract_labels.shape)
+
+     requested_labels = in_extract_labels + csv_extract_labels
+
+     extract_labels  = labels.get_labels( requested_labels, in_array )
+
+     if verbose:
+          print ('Requested labels for extraction not found', list(set(requested_labels) - set(extract_labels)))
+
+     out_array = np.zeros( in_array.shape, dtype = np.int8 )
+
+     for ii in extract_labels:
+          mask = in_array == ii
+          out_array[ mask ] = in_array[ mask ]
+
+     nb.save( nb.Nifti1Image( out_array, None, in_nii.get_header()), out_filename )
+
+     return
+
+
 #
 # Main Function
 #
@@ -45,33 +78,4 @@ if __name__ == "__main__":
      else:
           out_filename = inArgs.out_nii
 
-
-     # Read in label array
-
-     in_nii    = labels.read_nifti_file( inArgs.in_nii, 'Label file does not exist' )
-     in_array  = in_nii.get_data()
-     
-     if len(inArgs.csv):
-          csv_extract_labels = labels.read_labels_from_csv( inArgs.csv)
-     else:
-          csv_extract_labels = []
-
-#     print ( inArgs.extract.shape)
-#     print ( csv_extract_labels.shape)
-
-     requested_labels = inArgs.extract + csv_extract_labels
-
-     extract_labels  = labels.get_labels( requested_labels, in_array )
-
-     if inArgs.verbose:
-          print ('Requested labels for extraction not found', list(set(requested_labels) - set(extract_labels)))
-
-     out_array = np.zeros( in_array.shape )
-
-
-     for ii in extract_labels:
-          mask = in_array == ii
-          out_array[ mask ] = in_array[ mask ]
-
-
-     nb.save( nb.Nifti1Image( out_array, in_nii.get_affine()), out_filename )
+     extract(inArgs.in_nii, inArgs.csv, inArgs.extract, out_filename, verbose=False)

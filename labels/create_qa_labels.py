@@ -14,7 +14,7 @@ import _utilities as util
 # create_qa_phase_freq_label
 #
 
-def create_qa_phase_freq_label(in_nii_filename, in_qa_labels, out_nii_filename, swap=False, verbose=False):
+def create_qa_labels(in_nii_filename, in_qa_labels, out_nii_filename, swap=False, verbose=False):
 
     in_nii = util.read_nifti_file(inArgs.in_nii, in_nii_filename + 'does not exist.')
     in_array = in_nii.get_data()
@@ -104,4 +104,4 @@ if __name__ == "__main__":
     else:
         out_nii_filename = inArgs.out_nii
 
-    create_qa_phase_freq_label(inArgs.in_nii, inArgs.labels, out_nii_filename, inArgs.swap, inArgs.verbose)
+    create_qa_labels(inArgs.in_nii, inArgs.labels, out_nii_filename, inArgs.swap, inArgs.verbose)

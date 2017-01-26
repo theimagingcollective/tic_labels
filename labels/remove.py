@@ -14,7 +14,7 @@ import argparse
 import labels
 import _utilities as util
 
-def removeLabel(in_label_array,remove_labels):# function that can be called directly. in_label_array and remove_labels are passed on in raw python array format.
+def remove(in_label_array,remove_labels):# function that can be called directly. in_label_array and remove_labels are passed on in raw python array format.
     out_label_array = in_label_array[:] # deep copy
     for ii in remove_labels:
         mask = in_label_array == ii
@@ -67,6 +67,6 @@ if __name__ == "__main__":
      if inArgs.verbose:
           print (sorted(inArgs.remove + csv_remove_labels))
 
-     out_label_array=removeLabel(in_label_array,remove_labels) # Rz mod. the part that calls function
+     out_label_array=remove(in_label_array,remove_labels) # Rz mod. the part that calls function
 
      nb.save( nb.Nifti1Image( out_label_array, in_label_nii.get_affine()), out_filename )

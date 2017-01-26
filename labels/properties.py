@@ -10,7 +10,7 @@ import numpy
 import pandas as pd
 import scipy.ndimage as ndimage
 import argparse
-
+import _utilities as util
 import labels
 
 
@@ -80,7 +80,7 @@ def calculate_center_of_mass(mask):
 # Main Function
 #
 
-def measure(in_label_nii_filename, label_list, background, stats, out_filename, limits_volume_voxels=[0, numpy.inf],
+def properties(in_label_nii_filename, label_list, background, stats, out_filename, limits_volume_voxels=[0, numpy.inf],
             limits_bb_volume_voxels=[0, numpy.inf], limits_fill_factor=[0,1], sort='volume', 
             verbose=False, verbose_nlines=20):
 
@@ -174,7 +174,7 @@ def main():
 
     usage = "usage: %prog [options] arg1 arg2"
 
-    parser = argparse.ArgumentParser(prog='iw_compare_images')
+    parser = argparse.ArgumentParser(prog='properties')
 
     parser.add_argument("in_label_nii_filename", help="Label NIFTI filename ")
     parser.add_argument("--out", help="Filename of CSV output file containing label stats", default=None)
@@ -203,8 +203,15 @@ def main():
 
     inArgs = parser.parse_args()
 
-    measure(inArgs.in_label_nii_filename, inArgs.labels, inArgs.background, 
-            inArgs.stats, inArgs.out, inArgs.limits_volume_voxels, 
+    in_filename = inArgs.in_label_nii_filename
+
+    if inArgs.out == 'in':
+        out_filename = util.replace_nii_or_nii_gz_suffix(in_filename, '.csv')
+    else:
+        out_filename = inArgs.out
+
+    properties(in_filename, inArgs.labels, inArgs.background, 
+            inArgs.stats, out_filename, inArgs.limits_volume_voxels, 
             inArgs.limits_bb_volume_voxels, inArgs.limits_fill_factor, inArgs.sort, 
             inArgs.verbose, inArgs.verbose_nlines)
 

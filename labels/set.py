@@ -18,6 +18,35 @@ def check_limits(parameter, limits):
     return parameter >= limits[0] and parameter <= limits[1]
 
 
+def set(in_nii, in_csv, in_labels, in_stats, in_limits,  in_sort, out_nii):
+
+    df_stats = pd.read_csv(in_csv)
+
+    if inArgs.labels is not None:
+        df_stats = df_stats[df_stats['label'].isin(in_labels)]
+
+    stats_list = ['label'] + sum([in_stats], [])
+
+    if in_limits is not None:
+        df_limits = df_stats[
+            (df_stats[in_sort[0]] >= in_limits[0]) & (df_stats[in_sort[0]] <= in_limits[1])]
+    else:
+        df_limits = df_stats
+
+    df_sorted = df_limits.sort_values(in_sort, ascending=in_sort_direction).reset_index()
+    df_sorted = df_sorted.dropna()
+
+    in_nii = labels.read_nifti_file(in_in_nii, 'Label file does not exist')
+    in_array = in_nii.get_data()
+    out_array = np.zeros(in_array.shape)
+
+    for ii_label, ii_value in df_sorted[stats_list].get_values():
+        out_array[in_array == ii_label] = ii_value
+
+    nb.save(nb.Nifti1Image(out_array, [], in_nii.get_header()), in_out_nii)
+
+    return
+
 #
 # Main Function
 #
@@ -28,7 +57,7 @@ if __name__ == "__main__":
 
     usage = "usage: %prog [options] arg1 arg2"
 
-    parser = argparse.ArgumentParser(prog='iw_labels_sort')
+    parser = argparse.ArgumentParser(prog='set')
 
     parser.add_argument("in_csv", help="Label NIFTI filename ")
     parser.add_argument("in_nii", help="Filename of input labels")
@@ -50,27 +79,5 @@ if __name__ == "__main__":
 
     pd.set_option('expand_frame_repr', False)
 
-    df_stats = pd.read_csv(inArgs.in_csv)
 
-    if inArgs.labels is not None:
-        df_stats = df_stats[df_stats['label'].isin(inArgs.labels)]
-
-    stats_list = ['label'] + sum([inArgs.stats], [])
-
-    if inArgs.limits is not None:
-        df_limits = df_stats[
-            (df_stats[inArgs.sort[0]] >= inArgs.limits[0]) & (df_stats[inArgs.sort[0]] <= inArgs.limits[1])]
-    else:
-        df_limits = df_stats
-
-    df_sorted = df_limits.sort_values(inArgs.sort, ascending=inArgs.sort_direction).reset_index()
-    df_sorted = df_sorted.dropna()
-
-    in_nii = labels.read_nifti_file(inArgs.in_nii, 'Label file does not exist')
-    in_array = in_nii.get_data()
-    out_array = np.zeros(in_array.shape)
-
-    for ii_label, ii_value in df_sorted[stats_list].get_values():
-        out_array[in_array == ii_label] = ii_value
-
-    nb.save(nb.Nifti1Image(out_array, in_nii.get_affine()), inArgs.out_nii)
+    set(inArgs.in_nii, inArgs.in_csv, inArgs.labels, inArgs.stats, inArgs.limits,  inArgs.sort, inArgs.out_nii)

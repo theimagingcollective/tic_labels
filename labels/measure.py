@@ -10,7 +10,7 @@ import numpy
 import pandas
 import scipy.ndimage as ndimage
 
-def measure_image_stats( label_nii_filename, image_nii_filename, requested_labels, verbose_flag=False, verbose_nlines=10, verbose_all_flag=False ):
+def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbose_flag=False, verbose_nlines=10, verbose_all_flag=False ):
 
     # Load arrays
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
      usage = "usage: %prog [options] arg1 arg2"
 
-     parser = argparse.ArgumentParser(prog='iw_image_stats')
+     parser = argparse.ArgumentParser(prog='measure')
 
      parser.add_argument("label_filename",    help="Label NIFTI filename ")
      parser.add_argument("image_filename",    help="Image NIFTI filename" )
@@ -134,10 +134,10 @@ if __name__ == "__main__":
 
 
 
-     df_stats = measure_image_stats( inArgs.label_filename, inArgs.image_filename, inArgs.labels, 
-                                     verbose_flag=inArgs.verbose, 
-                                     verbose_nlines=inArgs.verbose_nlines,
-                                     verbose_all_flag=inArgs.verbose_all)
+     df_stats = measure( inArgs.label_filename, inArgs.image_filename, inArgs.labels, 
+                         verbose_flag=inArgs.verbose, 
+                         verbose_nlines=inArgs.verbose_nlines,
+                         verbose_all_flag=inArgs.verbose_all)
 
      df_stats.to_csv(inArgs.out, index=False)                 
 

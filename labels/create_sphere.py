@@ -10,7 +10,7 @@ import numpy as np
 import scipy.ndimage      as ndimage
 import skimage.morphology as skimage
 import argparse
-
+import _qa_utilities
 
 def create_roi_formula(in_point, in_image, label, radius, affine_iras_to_wras, in_verbose_flag):
 
@@ -123,7 +123,7 @@ def create_roi(out_roi, in_image, in_df_points, inRadius=3, inMethod='convolutio
 def main():
     usage = "usage: %prog [options] arg1 arg2"
 
-    parser = argparse.ArgumentParser(prog='iwCreateRoi')
+    parser = argparse.ArgumentParser(prog='create_sphere')
     parser.add_argument("in_image", help="Image")
     parser.add_argument("in_csv", help="CSV file containing coordinates")
     parser.add_argument("out_image", help="Image")
@@ -177,7 +177,7 @@ def main():
         print
 
     if inArgs.qi:
-        iwQa.qa_input_files(input_files, inArgs.verbose, False)
+        _qa_utilities.qa_input_files(input_files, inArgs.verbose, False)
 
     in_points = pd.read_csv(inArgs.in_csv)
 
