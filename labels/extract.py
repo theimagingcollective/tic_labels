@@ -17,7 +17,7 @@ import labels
 import _utilities as util
 import scipy.stats as stats
 
-def extract(in_filename, in_csv, in_extract_labels, out_filename, verbose=False):
+def extract(in_filename, in_csv, in_extract_labels, out_filename, verbose=False, merge=None):
 
      # Read in label array
 
@@ -45,6 +45,9 @@ def extract(in_filename, in_csv, in_extract_labels, out_filename, verbose=False)
           mask = in_array == ii
           out_array[ mask ] = in_array[ mask ]
 
+     if merge is not None and merge!=0: # isinstance(map, (int, long, float)) and float(map) !=0:
+          out_array = merge*(out_array > 0)
+
      nb.save( nb.Nifti1Image( out_array, None, in_nii.get_header()), out_filename )
 
      return
@@ -69,7 +72,8 @@ if __name__ == "__main__":
 
      parser.add_argument('-x', "--extract", help="Labels to extract and save to output file", type=float, nargs="*", default = [] )
      parser.add_argument("--csv",           help="CSV filename containing labels to remove", default = [] )
-     parser.add_argument("-v","--verbose",   help="Verbose flag",      action="store_true", default=False )
+     parser.add_argument("-m","--merge",     help="Merge labels into a single label (None).",  type = float, default=None )
+     parser.add_argument("-v","--verbose",  help="Verbose flag",      action="store_true", default=False )
      inArgs = parser.parse_args()
 
 
@@ -78,4 +82,4 @@ if __name__ == "__main__":
      else:
           out_filename = inArgs.out_nii
 
-     extract(inArgs.in_nii, inArgs.csv, inArgs.extract, out_filename, verbose=False)
+     extract(inArgs.in_nii, inArgs.csv, inArgs.extract, out_filename, verbose=inArgs.verbose, merge=inArgs.merge)
