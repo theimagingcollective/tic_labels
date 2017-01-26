@@ -22,25 +22,30 @@ def calculate_bounding_box(mask):
 
     objs = ndimage.find_objects(mask)
 
-    ndim = query_ndimensions(mask)
+    ndim = len(mask.shape)
 
+    bb_time   = 1
     bb_height = int(objs[0][0].stop - objs[0][0].start)
     bb_width  = int(objs[0][1].stop - objs[0][1].start)
-    bb_depth  = int(objs[0][2].stop - objs[0][2].start)
+
+    if ndim > 2:
+        bb_depth  = int(objs[0][2].stop - objs[0][2].start)
+    else:
+        bb_depth = 1
+
 
     if ndim==4:
         bb_time  = int(objs[0][3].stop - objs[0][3].start)
         bb_min = numpy.min([bb_height, bb_width, bb_depth, bb_time])
-        bb_volume_voxels = bb_height * bb_width * bb_depth* bb_time
+
+    elif ndim==3:
+        bb_min = numpy.min([bb_height, bb_width, bb_depth])
 
     else:
-        bb_time = 0
-        bb_min = numpy.min([bb_height, bb_width, bb_depth])
-        bb_volume_voxels = bb_height * bb_width * bb_depth
+        bb_min = numpy.min([bb_height, bb_width])
 
+    bb_volume_voxels = bb_height * bb_width * bb_depth * bb_time
             
-
-
     return [bb_height, bb_width, bb_depth, bb_time, bb_min, bb_volume_voxels]
 
 def query_ndimensions(mask):
@@ -63,14 +68,19 @@ def query_voxel_volume_mm3(label_nii):
 
 def calculate_center_of_mass(mask):
 
-    ndimensions = query_ndimensions(mask)
+    ndimensions = len(mask.shape)
 
     if ndimensions==4:
         label_x_com, label_y_com, label_z_com, label_t_com = [int(x) for x in
                                                  numpy.round(ndimage.measurements.center_of_mass(mask), 0)]
-    else:
+    elif ndimensions==3:
         label_t_com = 0
         label_x_com, label_y_com, label_z_com = [int(x) for x in
+                                                 numpy.round(ndimage.measurements.center_of_mass(mask), 0)]
+    else:
+        label_t_com = 0
+        label_z_com = 0
+        label_x_com, label_y_com = [int(x) for x in
                                                  numpy.round(ndimage.measurements.center_of_mass(mask), 0)]
 
 #    return ( int(label_x_com), int(label_y_com), int(label_z_com), int(label_t_com) )
@@ -107,7 +117,7 @@ def properties(in_label_nii_filename, label_list, background, stats, out_filenam
         # Create logical mask
 
         mask = (label_array == ii)
-        ndim = query_ndimensions(mask)
+        ndim = len(mask.shape)
 
         # Calculate Volume
         label_volume_voxels = int(numpy.sum(mask))
@@ -123,8 +133,12 @@ def properties(in_label_nii_filename, label_list, background, stats, out_filenam
 
                 if ndim == 4:
                     label_com_in = mask[label_x_com, label_y_com, label_z_com, label_t_com]
-                else:
+                elif ndim==3:
+                    label_t_com = 0
                     label_com_in = mask[label_x_com, label_y_com, label_z_com]
+                else:
+                    label_z_com = label_t_com = 0
+                    label_com_in = mask[label_x_com, label_y_com]
 
                 fill_factor = label_volume_voxels / bb_volume_voxels
 

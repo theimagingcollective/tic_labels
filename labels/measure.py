@@ -3,6 +3,7 @@
 """
 Measures images statistics within a labels.
 """
+import sys
 import argparse
 import labels
 import _utilities as util
@@ -28,7 +29,12 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
 #    if not len(label_array.shape) == 3:
 #        sys.exit('Only supports 3D label arrays')
 
-    if not image_array.shape[0:3] == label_array.shape[0:3]:
+    label_ndim = len(label_array.shape)
+    image_ndim = len(image_array.shape)
+
+    ndim = min([label_ndim, image_ndim])
+
+    if not image_array.shape[0:ndim] == label_array.shape[0:ndim]:
         sys.exit('Image array and label array do not have the same voxel dimensions')
 
     # Find a set of acceptable labels
@@ -38,9 +44,13 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
 
     # Permute array or expand so desired stats is along first dimension
 
-    if len(image_array.shape) == 4:
+    if image_ndim == 4:
         nVolumes = int(image_array.shape[3])
         image_array = numpy.transpose( image_array, [3,0,1,2] )
+
+    elif image_ndim == 3:
+        image_array = numpy.transpose( image_array, [2,0,1] )
+
     else:
         nVolumes = 1
         image_array = numpy.expand_dims(image_array, axis=0)
@@ -57,22 +67,31 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
 
     df_stats              = pandas.DataFrame(columns=('label', 'x_com', 'y_com', 'z_com', 'time', 'mean', 'std', 'min','max' ))
 
+    nlabels = len(label_list)
+
     for ii, ii_label in enumerate(label_list):
 
         for jj in range(0,nVolumes):
         
-            mask = label_array[0,:,:,:] == ii_label
+            if label_ndim == 3:
+                mask = label_array[0,:,:,:] == ii_label
+            else:
+                mask = label_array[0,:,:] == ii_label
 
             label_mean   = numpy.mean( image_array[jj][ mask ] )
             label_std    = numpy.std( image_array[jj][ mask ] )
             label_min    = numpy.min( image_array[jj][ mask ] )
             label_max    = numpy.max( image_array[jj][ mask ] )
 
-            x_com, y_com, z_com =  ndimage.measurements.center_of_mass(mask)
+            if label_ndim == 3:
+                x_com, y_com, z_com =  ndimage.measurements.center_of_mass(mask)
+            else:
+                z_com = 0
+                x_com, y_com =  ndimage.measurements.center_of_mass(mask)
 
             stats  = [ii_label, x_com, y_com, z_com, jj, label_mean, label_std, label_min, label_max ]
 
-            if verbose_flag:
+            if verbose_flag and nlabels > 3*verbose_nlines:
                 if ii_verbose==(verbose_nlines-1):
                     df_verbose =  df_stats.tail(verbose_nlines) 
                     print('\n')
@@ -127,17 +146,19 @@ if __name__ == "__main__":
 
      inArgs = parser.parse_args()
 
-     if inArgs.out == None:
-          out_filename = util.add_prefix_to_filename(inArgs.image_filename, 'stats.')
-     else:
-          out_filename = inArgs.out
-
-
-
      df_stats = measure( inArgs.label_filename, inArgs.image_filename, inArgs.labels, 
                          verbose_flag=inArgs.verbose, 
                          verbose_nlines=inArgs.verbose_nlines,
                          verbose_all_flag=inArgs.verbose_all)
 
-     df_stats.to_csv(inArgs.out, index=False)                 
+
+     # Save measures to file
+
+     if inArgs.out == 'in':
+         out_filename = util.replace_nii_or_nii_gz_suffix(inArgs.image_filename, '.csv')
+     else:
+         out_filename = inArgs.out
+
+     if out_filename is not None:
+         df_stats.to_csv(out_filename, index=False)                 
 
