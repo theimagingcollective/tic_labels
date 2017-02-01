@@ -7,7 +7,7 @@ from __future__ import division
 import sys
 import numpy
 
-import pandas as pd
+import pandas
 import scipy.ndimage as ndimage
 import argparse
 import _utilities as util
@@ -90,8 +90,8 @@ def calculate_center_of_mass(mask):
 # Main Function
 #
 
-def properties(in_label_nii_filename, label_list, background, stats, out_filename, limits_volume_voxels=[0, numpy.inf],
-            limits_bb_volume_voxels=[0, numpy.inf], limits_fill_factor=[0,1], sort='volume', 
+def properties(in_label_nii_filename, label_list=[], background=False,  stats=[], out_filename=None, limits_volume_voxels=[0, numpy.inf],
+            limits_bb_volume_voxels=[0, numpy.inf], limits_fill_factor=[0,1], sort='label', 
             verbose=False, verbose_nlines=20):
 
     label_nii = labels.read_nifti_file( in_label_nii_filename, 'labels.properties.py: Label file does not exist. ')
@@ -102,15 +102,20 @@ def properties(in_label_nii_filename, label_list, background, stats, out_filenam
 
     label_list = labels.get_labels(label_list, label_array, background)
 
-    df_stats = pd.DataFrame(columns=(
+    all_stats = [
     'label', 'volume_voxels', 'volume_mm3', 'com_x', 'com_y', 'com_z', 'com_t', 'com_in', 'bb_dx', 'bb_dy', 'bb_dz', 'bb_dt', 'bb_dmin', 'bb_volume_voxels',
-    'fill_factor'))
+    'fill_factor']
 
-    stats_list = ['label', ] + list(stats)
+    df_stats = pandas.DataFrame(columns=all_stats)
+
+    if len(stats)==0:
+        stats_list = ['label', ] + all_stats
+    else:
+        stats_list = ['label', ] + list(stats)
 
     if verbose:
         jj = 0
-        pd.set_option('expand_frame_repr', False)
+        pandas.set_option('expand_frame_repr', False)
 
     for ii in label_list:
 
@@ -180,6 +185,8 @@ def properties(in_label_nii_filename, label_list, background, stats, out_filenam
     if not out_filename == None:
         df_sorted[stats_list].to_csv(out_filename, index=False)
 
+    return df_sorted
+
 
 def main():
     ## Parsing Arguments
@@ -224,10 +231,10 @@ def main():
     else:
         out_filename = inArgs.out
 
-    properties(in_filename, inArgs.labels, inArgs.background, 
-            inArgs.stats, out_filename, inArgs.limits_volume_voxels, 
-            inArgs.limits_bb_volume_voxels, inArgs.limits_fill_factor, inArgs.sort, 
-            inArgs.verbose, inArgs.verbose_nlines)
+    properties(in_filename, label_list=inArgs.labels, background=inArgs.background, 
+            stats=inArgs.stats, out_filename=out_filename, limits_volume_voxels=inArgs.limits_volume_voxels, 
+            limits_bb_volume_voxels=inArgs.limits_bb_volume_voxels, limits_fill_factor=inArgs.limits_fill_factor,
+            sort=inArgs.sort, verbose=inArgs.verbose, verbose_nlines=inArgs.verbose_nlines)
 
 
 
