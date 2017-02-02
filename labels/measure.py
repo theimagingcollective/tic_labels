@@ -48,16 +48,12 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
         nVolumes = int(image_array.shape[3])
         image_array = numpy.transpose( image_array, [3,0,1,2] )
 
-    elif image_ndim == 3:
-        image_array = numpy.transpose( image_array, [2,0,1] )
-
     else:
         nVolumes = 1
         image_array = numpy.expand_dims(image_array, axis=0)
 
 
     label_array = numpy.expand_dims(label_array, axis=0)
-
 
     # Gather stats
 
@@ -73,10 +69,7 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
 
         for jj in range(0,nVolumes):
         
-            if label_ndim == 3:
-                mask = label_array[0,:,:,:] == ii_label
-            else:
-                mask = label_array[0,:,:] == ii_label
+            mask = label_array[0,...] == ii_label
 
             label_mean   = numpy.mean( image_array[jj][ mask ] )
             label_std    = numpy.std( image_array[jj][ mask ] )
