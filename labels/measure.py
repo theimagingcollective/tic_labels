@@ -48,12 +48,16 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
         nVolumes = int(image_array.shape[3])
         image_array = numpy.transpose( image_array, [3,0,1,2] )
 
+    elif image_ndim == 3:
+        image_array = numpy.transpose( image_array, [2,0,1] )
+
     else:
         nVolumes = 1
         image_array = numpy.expand_dims(image_array, axis=0)
 
 
     label_array = numpy.expand_dims(label_array, axis=0)
+
 
     # Gather stats
 
@@ -69,7 +73,10 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
 
         for jj in range(0,nVolumes):
         
-            mask = label_array[0,...] == ii_label
+            if label_ndim == 3:
+                mask = label_array[0,:,:,:] == ii_label
+            else:
+                mask = label_array[0,:,:] == ii_label
 
             label_mean   = numpy.mean( image_array[jj][ mask ] )
             label_std    = numpy.std( image_array[jj][ mask ] )
@@ -88,7 +95,7 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
                 if ii_verbose==(verbose_nlines-1):
                     df_verbose =  df_stats.tail(verbose_nlines) 
                     print('\n')
-                    print (df_verbose.to_string(formatters={'label':'{:,.0f}'.format, 'volume':'{:,.0f}'.format, 'time_index':'{:,.0f}'.format, 
+                    print (df_verbose.to_string(formatters={'label':'{:,.0f}'.format, 'volume':'{:,.0f}'.format, 'time':'{:,.0f}'.format, 
                                                 'mean':'{:,.3f}'.format, 'std':'{:,.3f}'.format, 'min':'{:,.3f}'.format, 'max':'{:,.3f}'.format,
                                                 'x_com':'{:,.0f}'.format, 'y_com':'{:,.0f}'.format, 'z_com':'{:,.0f}'.format}  ))
                     ii_verbose = 0
@@ -104,7 +111,9 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
             pandas.set_option('display.max_rows',len(df_stats))
             
         print('\n')
-        print(df_stats.to_string(formatters={'label':'{:,.0f}'.format, 'volume':'{:,.0f}'.format, 'time_index':'{:,.0f}'.format,
+
+        # ['label' 'x_com' 'y_com' 'z_com' 'time' 'mean' 'std' 'min' 'max']
+        print(df_stats.to_string(formatters={'label':'{:,.0f}'.format, 'time':'{:,.0f}'.format,
                         'mean':'{:,.3f}'.format, 'std':'{:,.3f}'.format, 'min':'{:,.3f}'.format, 'max':'{:,.3f}'.format,
                         'x_com':'{:,.0f}'.format, 'y_com':'{:,.0f}'.format, 'z_com':'{:,.0f}'.format} ))
         print('\n')
@@ -148,10 +157,23 @@ if __name__ == "__main__":
      # Save measures to file
 
      if inArgs.out == 'in':
-         out_filename = util.replace_nii_or_nii_gz_suffix(inArgs.image_filename, '.csv')
+        out_filename = util.replace_nii_or_nii_gz_suffix(inArgs.image_filename, '.csv')
      else:
          out_filename = inArgs.out
 
      if out_filename is not None:
+
+         # ['label' 'x_com' 'y_com' 'z_com' 'time' 'mean' 'std' 'min' 'max']
+         formatters={'label':'{:,.0f}', 'time':'{:,.0f}',
+                     'mean':'{:,.3f}', 'std':'{:,.3f}', 'min':'{:,.3f}', 'max':'{:,.3f}',
+                     'x_com':'{:,.0f}', 'y_com':'{:,.0f}', 'z_com':'{:,.0f}'}
+
+         for ii in ['x_com', 'y_com', 'z_com', 'time']:
+             df_stats.loc[:, ii] = df_stats[ii].apply(int)
+
+#         for key,value in formatters.iteritems():
+#             print([key, value])
+#             df_stats[key] = df_stats[key].map(lambda x: value % x)
+
          df_stats.to_csv(out_filename, index=False)                 
 

@@ -21,7 +21,7 @@ def measure_volume(mask, volume_per_voxel=1):
 
     return (label_volume_voxels, label_volume_mm3)
 
-def overlap( label_nii_filename, label2_nii_filename, requested_labels=[], verbose_flag=False, verbose_nlines=10, verbose_all_flag=False ):
+def overlap( label_nii_filename, label2_nii_filename, requested_labels=[], include_zero=False, verbose_flag=False, verbose_nlines=10, verbose_all_flag=False ):
 
     # Load arrays
 
@@ -33,8 +33,10 @@ def overlap( label_nii_filename, label2_nii_filename, requested_labels=[], verbo
 
     # System Checks to verify that the Array Size and Dimensions are compatible
 
-    label_array = label_nii.get_data()
-    label2_array = label2_nii.get_data()
+    label_array = numpy.ndarray.squeeze(label_nii.get_data())
+    label2_array = numpy.ndarray.squeeze(label2_nii.get_data())
+
+    # Check size
 
     if len(label2_array.shape) < 2 or len(label2_array.shape) > 4:
         sys.exit('Only supports 3D and 4D image arrays')
@@ -52,8 +54,8 @@ def overlap( label_nii_filename, label2_nii_filename, requested_labels=[], verbo
 
     # Find a set of acceptable labels
 
-    label_list = labels.get_labels( requested_labels, label_array)
-    label2_list = labels.get_labels([], label2_array)
+    label_list = labels.get_labels( requested_labels, label_array, include_zero)
+    label2_list = labels.get_labels([], label2_array, include_zero)
 
     # Gather stats
 
@@ -66,15 +68,14 @@ def overlap( label_nii_filename, label2_nii_filename, requested_labels=[], verbo
 
     for ii, ii_label in enumerate(label_list):
 
-        mask1 = label_array[0, ...] == ii_label
+        mask1 = label_array == ii_label
         _, label1_volume_mm3 = measure_volume(mask1, label_single_voxel_volume_mm3)
 
-        overlap_label2_list = list(numpy.unique(mask1 * label2_array))
-        print(overlap_label2_list)
+        overlap_label2_list = list(numpy.unique(mask1 * label2_array))[1:]  # Remove 0 from list
 
         for jj, jj_label in enumerate(overlap_label2_list):
         
-            mask2 = label2_array[0,...] == jj_label
+            mask2 = label2_array == jj_label
             mask12 = mask1 * mask2
 
             _, label2_volume_mm3 = measure_volume( mask2, label_single_voxel_volume_mm3)
@@ -91,7 +92,7 @@ def overlap( label_nii_filename, label2_nii_filename, requested_labels=[], verbo
                 if ii_verbose==(verbose_nlines-1):
                     df_verbose =  df_stats.tail(verbose_nlines) 
                     print('\n')
-                    print (df_verbose.to_string(formatters={'label1':'{:,.0f}'.format, 'label2':'{:,.0f}'.format
+                    print (df_verbose.to_string(formatters={'label1':'{:,.0f}'.format, 'label2':'{:,.0f}'.format,
                                                             'volume1':'{:,.0f}'.format, 'volume2':'{:,.0f}'.format,
                                                             'volume12':'{:,.0f}'.format,
                                                             'fraction12':'{:,.3f}'.format,

@@ -13,6 +13,10 @@ import argparse
 
 import _utilities as util
 
+def remove_values_from_list(in_list, val=0):
+    out_list = [value for value in in_list if value != val]
+    return out_list
+
 
 def read_nifti_file( nii_filename, error_message ):
 
@@ -65,8 +69,10 @@ def get_labels( requested_labels, label_array, include_background=False ):
         labels = list( set(requested_labels) & set(all_labels))
     
     if include_background:
-       labels = [ 0 ]  + labels
-
+        labels = [ 0 ]  + labels
+    else:
+        labels = remove_values_from_list(labels, 0)
+    
 
     if not len(labels) :
         sys.exit('Labels requested do not exist in the label array')
@@ -144,7 +150,7 @@ def norm(x):
      if not x_norm == 0:
           return x/x_norm
      else:
-          print "Error: norm of vector is 0"
+          print("Error: norm of vector is 0")
           quit()
 
 
@@ -157,9 +163,9 @@ def scale_points( in_points, scale, verbose_flag=False):
 
 
      if verbose_flag:
-          print
-          print out_points
-          print
+          print('\n')
+          print( out_points)
+          print('\n')
 
      return out_points
 
@@ -173,9 +179,9 @@ def round_points( in_points, verbose_flag=False):
 
 
      if verbose_flag:
-          print
-          print out_points
-          print
+          print('\n')
+          print( out_points)
+          print('\n')
 
      return out_points
      
@@ -196,11 +202,11 @@ def print_points_from_file(  in_filename, verbose_flag=False):
 def print_points( in_filename, in_pdframe, verbose_flag=False):
 
      if verbose_flag:
-         print 
-         print in_filename
-         print '----------------------------------------'
-         print in_pdframe
-         print
+         print('\n') 
+         print( in_filename )
+         print( '----------------------------------------' )
+         print( in_pdframe )
+         print('\n')
 
 
 
@@ -210,13 +216,13 @@ def icsa_to_wlps(in_filename, out_filename, transform, verbose_flag=False, debug
      _out2 = '00_iras_to_wlps__wras.csv'
 
      if debug_flag:
-          print "!!! Entering icsa_to_wlps"
-          print in_filename
-          print transform
-          print _out1
-          print _out1
-          print out_filename
-          print
+          print( "!!! Entering icsa_to_wlps" )
+          print( in_filename )
+          print( transform )
+          print( _out1 )
+          print( _out1 )
+          print( out_filename )
+          print('\n')
 
      icsa_to_iras(in_filename, _out1, verbose_flag, debug_flag)
      iras_to_wlps(_out1, out_filename, transform, verbose_flag, debug_flag)
@@ -232,12 +238,12 @@ def wlps_to_icsa(in_filename, out_filename, transform, verbose_flag=False, debug
      _out1 = '00_wlps_to_icsa__wiras.csv'
 
      if debug_flag:
-          print "!!! Entering wlps_to_icsa"
-          print in_filename
-          print transform
-          print _out1
-          print out_filename
-          print
+          print( "!!! Entering wlps_to_icsa" )
+          print( in_filename )
+          print( transform )
+          print( _out1 )
+          print( out_filename )
+          print('\n')
 
      wlps_to_iras(in_filename, _out1, transform, verbose_flag, debug_flag)
      iras_to_icsa(_out1, out_filename, verbose_flag)
@@ -251,10 +257,10 @@ def wlps_to_icsa(in_filename, out_filename, transform, verbose_flag=False, debug
 def icsa_to_iras(in_filename, out_filename, verbose_flag=False, debug_flag=False):
      
      if debug_flag:
-          print "!!! Entering icsa_to_iras"
-          print in_filename
-          print out_filename
-          print
+          print( "!!! Entering icsa_to_iras" )
+          print( in_filename)
+          print( out_filename)
+          print('\n')
 
      in_points = pd.read_csv(in_filename, names=['c','s','a','t','label', 'comment'], skiprows=[0])
      
@@ -398,11 +404,11 @@ def check_fiducials(df_fiducials):
      rpa = np.asarray(df_fiducials.values[2,0:3])
                     
      if not ( (lpa[0] > nas[0]) and (nas[0] > rpa[0])  ):
-          print
-          print 'Fiducials must be listed left to right in OUT fiducial file'
-          print
-          print df_fiducials.values
-          print
+          print('\n')
+          print( 'Fiducials must be listed left to right in OUT fiducial file')
+          print('\n')
+          print( df_fiducials.values )
+          print('\n')
           sys.exit()
                          
      return [ lpa, nas, rpa ]
@@ -419,7 +425,7 @@ def calc_matrix( in_fiducials, out_matrix, ctf_scale=1, verbose_flag=False):
                     
      [ rotate_ctf, translate_ctf, origin_ctf ] = calc_rotate_translate_origin( nas, lpa, rpa, ctf_scale)
 
-     print rotate_ctf
+     print(rotate_ctf)
      
      affine_wlps_to_wctf = calc_affine( rotate_ctf, translate_ctf, 0*origin_ctf)
      
@@ -445,10 +451,10 @@ def transform_points(in_filename, out_filename, in_transforms, scale, verbose_fl
      input_files = filename + transforms 
 
      if debug_flag:
-          print
-          print '!!! ctf.transform_points '
-          print input_files
-          print
+          print('\n')
+          print('!!! ctf.transform_points ')
+          print(input_files)
+          print('\n')
 
      util.verify_inputs( filename )
 
@@ -486,10 +492,10 @@ def transform_image(in_filename, out_filename, reference_filename, in_transforms
      input_files = filename + reference_filename + transforms 
 
      if debug_flag:
-          print
-          print '!!! ctf.transform_image '
-          print input_files
-          print
+          print('\n')
+          print( '!!! ctf.transform_image ')
+          print(input_files)
+          print('\n')
 
      util.verify_inputs( filename )
 

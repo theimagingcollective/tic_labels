@@ -24,7 +24,6 @@ def create_qa_labels(in_nii_filename, in_qa_labels, out_nii_filename, swap=False
 
     out_array = 0*in_array
 
-
     for ii in range(0,nslices):
 
         ii_array = in_array[:, :, ii]
@@ -36,8 +35,8 @@ def create_qa_labels(in_nii_filename, in_qa_labels, out_nii_filename, swap=False
         ii_y_array = 0*ii_array
         ii_other_array = 0*ii_array
 
-        ii_x_where_list = list(numpy.where(numpy.amax(ii_array,axis=1>0))[0])
-        ii_y_where_list = list(numpy.where(numpy.amax(ii_array, axis=0>0))[0])
+        ii_x_where_list = list(numpy.where(numpy.amax(ii_array, axis=1))[0])
+        ii_y_where_list = list(numpy.where(numpy.amax(ii_array, axis=0))[0])
 
         ii_mask_array[ii_x_where_list[0]:ii_x_where_list[-1]+1,
                       ii_y_where_list[0]:ii_y_where_list[-1]+1] = 1
