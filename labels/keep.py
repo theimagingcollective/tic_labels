@@ -14,7 +14,7 @@ import argparse
 import labels
 import _utilities as util
 
-def keep(in_nii, keep_labels, keep_csv_filename, out_filename):
+def keep(in_nii, keep_labels, keep_csv_filename, out_filename, merge=None):
 
      
      in_label_nii    = labels.read_nifti_file( in_nii, 'Label file does not exist' )
@@ -34,6 +34,9 @@ def keep(in_nii, keep_labels, keep_csv_filename, out_filename):
      for ii in remove_labels:
           mask = in_label_array == ii
           out_label_array[ mask ] = 0
+
+     if merge is not None and merge!=0: # isinstance(map, (int, long, float)) and float(map) !=0:
+          out_label_array = merge*(out_label_array > 0)
 
      nb.save( nb.Nifti1Image( out_label_array, None, in_label_nii.get_header()), out_filename )
 

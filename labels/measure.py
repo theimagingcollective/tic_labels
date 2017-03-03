@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 Measures images statistics within a labels.
 """
@@ -12,6 +11,7 @@ import pandas
 import scipy.ndimage as ndimage
 
 def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbose_flag=False, verbose_nlines=10, verbose_all_flag=False ):
+    """ kernel for measuring the image statistics within a set of labels """
 
     # Load arrays
 
@@ -46,10 +46,7 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
 
     if image_ndim == 4:
         nVolumes = int(image_array.shape[3])
-        image_array = numpy.transpose( image_array, [3,0,1,2] )
-
-    elif image_ndim == 3:
-        image_array = numpy.transpose( image_array, [2,0,1] )
+        image_array = numpy.transpose( image_array, [3,0,1,2] )  # permute matrix so Volumes is first index
 
     else:
         nVolumes = 1
@@ -72,11 +69,8 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
     for ii, ii_label in enumerate(label_list):
 
         for jj in range(0,nVolumes):
-        
-            if label_ndim == 3:
-                mask = label_array[0,:,:,:] == ii_label
-            else:
-                mask = label_array[0,:,:] == ii_label
+            
+            mask = label_array[0,...] == ii_label
 
             label_mean   = numpy.mean( image_array[jj][ mask ] )
             label_std    = numpy.std( image_array[jj][ mask ] )
@@ -95,7 +89,7 @@ def measure( label_nii_filename, image_nii_filename, requested_labels=[], verbos
                 if ii_verbose==(verbose_nlines-1):
                     df_verbose =  df_stats.tail(verbose_nlines) 
                     print('\n')
-                    print (df_verbose.to_string(formatters={'label':'{:,.0f}'.format, 'volume':'{:,.0f}'.format, 'time':'{:,.0f}'.format, 
+                    print (df_verbose.to_string(formatters={'label':'{:,.0f}'.format,  'time':'{:,.0f}'.format, 
                                                 'mean':'{:,.3f}'.format, 'std':'{:,.3f}'.format, 'min':'{:,.3f}'.format, 'max':'{:,.3f}'.format,
                                                 'x_com':'{:,.0f}'.format, 'y_com':'{:,.0f}'.format, 'z_com':'{:,.0f}'.format}  ))
                     ii_verbose = 0
